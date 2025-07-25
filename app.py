@@ -129,42 +129,43 @@ def export_pdf(schedule):
     pdf.add_page()
     pdf.set_font("Arial", size=12)
     pdf.cell(200, 10, "Duplas por Sexta-feira", ln=True, align='C')
-...     pdf.ln(10)
-...     for date in sorted(schedule):
-...         p1, p2 = schedule[date]
-...         pdf.cell(0, 10, f"{format_date(date)}: {p1} & {p2}", ln=True)
-...     bio = io.BytesIO()
-...     pdf.output(bio)
-...     bio.seek(0)
-...     return bio
-... 
-... def export_txt(schedule):
-...     output = ""
-...     for date in sorted(schedule):
-...         p1, p2 = schedule[date]
-...         output += f"{format_date(date)}: {p1} & {p2}\n"
-...     return output.encode("utf-8")
-... 
-... # Interface
-... st.title("🎯 Gerador de Duplas por Sexta-feira")
-... col1, col2 = st.columns(2)
-... with col1:
-...     start_month = st.selectbox("📅 Mês de início", range(1, 13), index=6)
-... with col2:
-...     end_month = st.selectbox("📅 Mês de fim", range(1, 13), index=9)
-... 
-... if st.button("Gerar Duplas"):
-...     schedule = generate_schedule(start_month, end_month)
-...     st.success("✅ Duplas geradas com sucesso!\n")
-... 
-...     for date in sorted(schedule):
-...         p1, p2 = schedule[date]
-...         st.write(f"📌 **{format_date(date)}**: {p1} & {p2}")
-... 
-...     excel_data = export_excel(schedule)
-...     pdf_data = export_pdf(schedule)
-...     txt_data = export_txt(schedule)
-... 
-...     st.download_button("⬇️ Exportar Excel", excel_data, "duplas.xlsx")
-...     st.download_button("⬇️ Exportar PDF", pdf_data, "duplas.pdf")
-...     st.download_button("⬇️ Exportar Histórico (.txt)", txt_data, "duplas.txt")
+    pdf.ln(10)
+    for date in sorted(schedule):
+        p1, p2 = schedule[date]
+        pdf.cell(0, 10, f"{format_date(date)}: {p1} & {p2}", ln=True)
+    bio = io.BytesIO()
+    pdf.output(bio)
+    bio.seek(0)
+    return bio
+
+def export_txt(schedule):
+    output = ""
+    for date in sorted(schedule):
+        p1, p2 = schedule[date]
+        output += f"{format_date(date)}: {p1} & {p2}\n"
+    return output.encode("utf-8")
+
+# Interface
+st.title("🎯 Gerador de Duplas por Sexta-feira")
+col1, col2 = st.columns(2)
+with col1:
+    start_month = st.selectbox("📅 Mês de início", range(1, 13), index=6)
+with col2:
+    end_month = st.selectbox("📅 Mês de fim", range(1, 13), index=9)
+
+if st.button("Gerar Duplas"):
+    schedule = generate_schedule(start_month, end_month)
+    st.success("✅ Duplas geradas com sucesso!\n")
+
+    for date in sorted(schedule):
+        p1, p2 = schedule[date]
+        st.write(f"📌 **{format_date(date)}**: {p1} & {p2}")
+
+    excel_data = export_excel(schedule)
+    pdf_data = export_pdf(schedule)
+    txt_data = export_txt(schedule)
+
+    st.download_button("⬇️ Exportar Excel", excel_data, "duplas.xlsx")
+    st.download_button("⬇️ Exportar PDF", pdf_data, "duplas.pdf")
+    st.download_button("⬇️ Exportar Histórico (.txt)", txt_data, "duplas.txt")
+
