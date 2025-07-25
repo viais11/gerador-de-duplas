@@ -5,10 +5,10 @@ from openpyxl import Workbook
 from fpdf import FPDF
 import io
 
-# Config
+# Configuração
 st.set_page_config(page_title="Gerador de Duplas", layout="centered")
 
-# Dados
+# Participantes
 participants = [
     "Carlos Correia",
     "Jose Cocenas",
@@ -18,18 +18,22 @@ participants = [
     "Arlindo Vendeiro"
 ]
 
+# Disponibilidade especial
 availability = {
     "Antonio Vidinha": datetime.date(2025, 7, 25),
 }
 
+# Limite de participação mensal
 max_monthly = {
     "Arlindo Vendeiro": 1
 }
 
+# Duplas fixas
 fixed_participation = {
     datetime.date(2025, 7, 11): ("Carlos Correia", "Jose Vendeiro")
 }
 
+# Participação obrigatória de Antonio Ruas em datas específicas
 mandatory_days = {
     "Antonio Ruas": [
         datetime.date(2025, 7, 25),
@@ -39,7 +43,7 @@ mandatory_days = {
     ]
 }
 
-# Helpers
+# Funções auxiliares
 def get_fridays(start_date, end_date):
     current = start_date
     fridays = []
@@ -61,6 +65,7 @@ def generate_schedule(start_month, end_month, year=2025):
     fridays = get_fridays(start_date, end_date)
 
     for date in fridays:
+        # Duplas fixas
         if date in fixed_participation:
             p1, p2 = fixed_participation[date]
             schedule[date] = (p1, p2)
@@ -68,12 +73,14 @@ def generate_schedule(start_month, end_month, year=2025):
             usage_tracker[p2].append(date)
             continue
 
+        # Participante obrigatório (ex: Antonio Ruas)
         must_have = None
         for name, days in mandatory_days.items():
             if date in days:
                 must_have = name
                 break
 
+        # Filtrar disponíveis
         possible = [p for p in participants
                     if availability.get(p, date) <= date
                     and (date not in usage_tracker[p][-1:] if usage_tracker[p] else True)]
@@ -133,10 +140,8 @@ def export_pdf(schedule):
     for date in sorted(schedule):
         p1, p2 = schedule[date]
         pdf.cell(0, 10, f"{format_date(date)}: {p1} & {p2}", ln=True)
-    bio = io.BytesIO()
-    pdf.output(bio)
-    bio.seek(0)
-    return bio
+    pdf_output = pdf.output(dest='S').encode('latin-1')
+    return io.BytesIO(pdf_output)
 
 def export_txt(schedule):
     output = ""
@@ -168,4 +173,5 @@ if st.button("Gerar Duplas"):
     st.download_button("⬇️ Exportar Excel", excel_data, "duplas.xlsx")
     st.download_button("⬇️ Exportar PDF", pdf_data, "duplas.pdf")
     st.download_button("⬇️ Exportar Histórico (.txt)", txt_data, "duplas.txt")
+
 
